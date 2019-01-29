@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="blog.straysheep.dao.AdminUserMapper">
+
+    <sql id="baseSql">
+        select user_id, role_id, username, nick_name, password, avatar, role_name, admin_user.create_time
+        from admin_user, admin_role, admin_user_role
+        where admin_user.id = admin_user_role.user_id
+        and admin_role.id = admin_user_role.role_id
+        and admin_role.role_name not in ('超级管理员')
+        <if test="username!=null">
+            and username like concat('%',#{username},'%')
+        </if>
+        <if test="roleName!=null">
+            and role_name like concat('%',#{roleName},'%')
+        </if>
+        <if test="nickName!=null">
+            and nick_name like concat('%',#{nickName},'%')
+        </if>
+    </sql>
+
+    <sql id="baseSqlForRole">
+        select id, role_name, create_time from admin_role where role_name not in ('超级管理员')
+        <if test="roleName!=null">
+            and role_name like concat('%',#{roleName},'%')
+        </if>
+    </sql>
+
+    <select id="findAdmin" resultType="blog.straysheep.dto.AdminUserDto">
+        select id, username, password, create_time from admin_user where 1=1
+        <if test="username!=null">
+        and username=#{username}
+        </if>
+        <if test="password!=null">
+        and password=#{password}
+        </if>
+    </select>
+
+    <select id="findAdminByUsername" resultMap="userResultMap">
+        select id, username, password, nick_name, avatar, create_time from admin_user where
+        <if test="username!=null">
+            username=#{username}
+        </if>
+    </select>
+    <resultMap type="blog.straysheep.dto.AdminUserDto" id="userResultMap">
+        <result column="id" property="userId"></result>
+        <result column="username" property="username"></result>
+        <result column="password" property="password"></result>
+        <result column="create_time" property="createTime"></result>
+    </resultMap>
+
+    <select id="selectTotalRecord" resultType="int">
+        select count(*) from (<include refid="baseSql"/>) a
+    </select>
+
+    <select id="selectRoleTotalRecord" resultType="int">
+        select count(*) from (<include refid="baseSqlForRole"/>) a
+    </select>
+
+    <select id="selectAdminUser" resultType="blog.straysheep.dto.AdminUserDto">
+        <include refid="baseSql"/> limit #{from}, #{pageSize}
+    </select>
+
+    <select id="selectAdminRole" resultMap="rolesResultMap">
+        <include refid="baseSqlForRole"/> limit #{from}, #{pageSize}
+    </select>
+
+    <select id="selectAllAdminUser" resultMap="rolesResultMap">
+        <include refid="baseSql"/>
+    </select>
+
+    <select id="selectAllAdminRole" resultMap="rolesResultMap">
+        <include refid="baseSqlForRole"/>
+    </select>
+
+    <select id="selectAdminRoleByRoleId" resultMap="rolesResultMap">
+        <include refid="baseSqlForRole"/> and id = #{roleId}
+    </select>
+    <resultMap type="blog.straysheep.dto.AdminUserDto" id="rolesResultMap">
+        <result column="id" property="roleId"></result>
+        <result column="role_name" property="roleName"></result>
+        <result column="create_time" property="createTime"></result>
+    </resultMap>
+
+    <select id="selectAdminUserByUserId" resultType="blog.straysheep.dto.AdminUserDto">
+        select user_id, role_id, username, nick_name, password, avatar, role_name, admin_user.create_time
+        from admin_user, admin_role, admin_user_role
+        where admin_user.id = admin_user_role.user_id
+        and admin_role.id = admin_user_role.role_id
+        and admin_user.id = #{userId}
+    </select>
+
+    <select id="selectPermissionIdByRoleId" resultType="java.lang.String">
+        select permission_id from admin_role_permission where role_id = #{roleId}
+    </select>
+
+    <select id="selectPermissionCodeByUserId" resultType="String">
+        select permission_code from admin_permission
+        where id in(
+        select permission_id
+        from admin_role_permission where 1=1
+        and role_id in(
+        select role_id
+        from admin_user_role
+        where 1=1
+        <if test="userId!=null">
+            and user_id = #{userId}
+        </if>
+        )
+        )
+    </select>
+
+    <select id="selectPermission" resultType="blog.straysheep.dto.PermissionDto">
+        select * from admin_permission
+    </select>
+
+    <insert id="insertAdminUser" parameterType="blog.straysheep.dto.AdminUserDto"
+            flushCache="true" statementType="PREPARED" keyProperty="userId" keyColumn=""
+            useGeneratedKeys="false" timeout="20">
+
+        <selectKey resultType="java.lang.Integer" keyProperty="userId" order="AFTER">
+            SELECT LAST_INSERT_ID() as userId
+        </selectKey>
+
+        insert into admin_user (
+        <if test="username!=null">username,</if>
+        <if test="password!=null">password,</if>
+        <if test="nickName!=null">nick_name,</if>
+        <if test="avatar!=null">avatar,</if>
+        create_time
+        )
+        values (
+        <if test="username!=null">#{username},</if>
+        <if test="password!=null">#{password},</if>
+        <if test="nickName!=null">#{nickName},</if>
+        <if test="avatar!=null">#{avatar},</if>
+        now()
+        )
+    </insert>
+
+    <insert id="insertAdminUserRole" parameterType="blog.straysheep.dto.AdminUserDto"
+            flushCache="true" statementType="PREPARED" timeout="20">
+
+        insert into admin_user_role (
+        <if test="userId!=null">user_id,</if>
+        <if test="roleId!=null">role_id</if>
+        )
+        values (
+        <if test="userId!=null">#{userId},</if>
+        <if test="roleId!=null">#{roleId}</if>
+        )
+    </insert>
+
+    <insert id="insertAdminRole" parameterType="blog.straysheep.dto.PermissionDto"
+            flushCache="true" statementType="PREPARED" keyProperty="roleId" keyColumn=""
+            useGeneratedKeys="false" timeout="20">
+
+        <selectKey resultType="java.lang.Integer" keyProperty="roleId" order="AFTER">
+            SELECT LAST_INSERT_ID() as roleId
+        </selectKey>
+
+        insert into admin_role (
+        <if test="roleName!=null">role_name,</if>
+        create_time
+        )
+        values (
+        <if test="roleName!=null">#{roleName},</if>
+        now()
+        )
+    </insert>
+
+    <insert id="insertRolePermission" parameterType="blog.straysheep.dto.PermissionDto"
+            flushCache="true" statementType="PREPARED" timeout="20">
+
+        insert into admin_role_permission (
+        <if test="roleId!=null">role_id,</if>
+        <if test="id!=null">permission_id,</if>
+        create_time
+        )
+        values (
+        <if test="roleId!=null">#{roleId},</if>
+        <if test="id!=null">#{id},</if>
+        now()
+        )
+    </insert>
+
+    <delete id="deleteAdminUser" parameterType="blog.straysheep.dto.AdminUserDto">
+        delete from admin_user where
+        <if test="userId!=null">
+            id = #{userId}
+        </if>
+    </delete>
+
+    <delete id="deleteAdminUserRole" parameterType="blog.straysheep.dto.AdminUserDto">
+        delete from admin_user_role where
+        <if test="userId!=null">
+            user_id = #{userId}
+        </if>
+    </delete>
+
+    <delete id="deleteAdminRole" parameterType="blog.straysheep.dto.AdminUserDto">
+        delete from admin_role where
+        <if test="roleId!=null">
+            id = #{roleId}
+        </if>
+    </delete>
+
+    <delete id="deleteAdminRolePermission" parameterType="blog.straysheep.dto.AdminUserDto">
+        delete from admin_role_permission where
+        <if test="roleId!=null">
+            role_id = #{roleId}
+        </if>
+    </delete>
+
+    <update id="updateAdminUser" parameterType="blog.straysheep.dto.AdminUserDto">
+        update admin_user set
+        <if test="username!=null">
+            username = #{username},
+        </if>
+        <if test="nickName!=null">
+            nick_name = #{nickName},
+        </if>
+        <if test="avatar!=null">
+            avatar = #{avatar}
+        </if>
+        where id = #{userId}
+    </update>
+
+    <update id="updateProfile" parameterType="blog.straysheep.dto.AdminUserDto">
+        update admin_user set
+        <if test="password!=null">
+            password = #{password},
+        </if>
+        <if test="nickName!=null">
+            nick_name = #{nickName},
+        </if>
+        <if test="avatar!=null">
+            avatar = #{avatar}
+        </if>
+        where id = #{userId}
+    </update>
+
+    <update id="updateAdminUserRole" parameterType="blog.straysheep.dto.AdminUserDto">
+        update admin_user_role set
+        <if test="roleId!=null">
+            role_id = #{roleId}
+        </if>
+        where user_id = #{userId}
+    </update>
+
+    <update id="updateAdminRole" parameterType="blog.straysheep.dto.PermissionDto">
+        update admin_role set
+        <if test="roleName!=null">
+            role_name = #{roleName}
+        </if>
+        where id = #{roleId}
+    </update>
+
+    <delete id="deleteRolePermissionBeforeUpdate" parameterType="blog.straysheep.dto.PermissionDto">
+        delete from admin_role_permission where
+        <if test="roleId!=null">
+            role_id = #{roleId}
+        </if>
+    </delete>
+
+
+</mapper>
+

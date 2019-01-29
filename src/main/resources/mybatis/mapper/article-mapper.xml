@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="blog.straysheep.dao.ArticleMapper">
+
+    <sql id="basePageSql">
+        select article.id, title, summary, image, create_time, category_id, article_category.category
+        from article, article_category
+        where article.category_id=article_category.id
+        <if test="title!=null and title!=''">
+            and title like concat('%',#{title},'%')
+        </if>
+        <if test="content!=null and content!=''">
+            and id in
+            (select article_id from article_content where article_content like concat('%',#{content},'%'))
+        </if>
+    </sql>
+
+    <sql id="baseSqlForCategory">
+        select article.id, title, image, create_time, article_category.category, article.category_id
+        from article, article_category
+        where article.category_id=article_category.id
+        <if test="categoryId!=null">
+            and article.category_id=#{categoryId}
+        </if>
+    </sql>
+
+    <select id="selectByPage" resultType="blog.straysheep.dto.ArticleDto">
+        <include refid="basePageSql" /> limit #{from}, #{pageSize}
+    </select>
+
+    <select id="selectAllArticle" resultType="blog.straysheep.dto.ArticleDto">
+        select title, summary, article.create_time, admin_user.nick_name
+        from article, admin_user
+        where article.creator_id=admin_user.id
+    </select>
+
+    <select id="selectAllCategory" resultMap="category">
+        select id, category from article_category
+    </select>
+    <resultMap id="category" type="blog.straysheep.dto.ArticleDto">
+        <result column="id" property="categoryId"></result>
+    </resultMap>
+
+    <select id="selectArticleByCategoryId" resultType="blog.straysheep.dto.ArticleDto">
+        <include refid="baseSqlForCategory"/> limit #{from}, #{pageSize}
+    </select>
+
+    <select id="selectTotalRecordByCategory" resultType="int">
+        select count(*) from (<include refid="baseSqlForCategory" />) s
+    </select>
+
+    <select id="selectTotalRecord" resultType="int">
+        select count(*) from (<include refid="basePageSql" />) s
+    </select>
+
+    <select id="selectArticleById" resultMap="article">
+        select article.id, title, image, article.create_time, article_content, nick_name, avatar, category_id
+        from admin_user,
+        article left join article_content on article.id=article_content.article_id
+        where admin_user.id=article.creator_id
+        <if test="id!=null">
+            and article.id=#{id}
+        </if>
+    </select>
+    <resultMap id="article" type="blog.straysheep.dto.ArticleDto">
+        <result column="article_content" property="content"></result>
+        <result column="category_id" property="categoryId"></result>
+    </resultMap>
+
+
+
+    <select id="findArticle" resultMap="article">
+        select id, title, summary, image, category_id, create_time from article where id = #{id}
+    </select>
+
+    <select id="findContent" resultType="String">
+        select article_content from article_content where article_id = #{id}
+    </select>
+
+    <insert id="insertArticle" parameterType="blog.straysheep.dto.ArticleDto"
+            flushCache="true" statementType="PREPARED" keyProperty="id" keyColumn=""
+            useGeneratedKeys="false" timeout="20">
+
+        <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID() as id
+        </selectKey>
+
+        insert into article (
+        <if test="title!=null">title,</if>
+        <if test="summary!=null">summary,</if>
+        <if test="image!=null">image,</if>
+        <if test="creatorId!=null">creator_id,</if>
+        <if test="categoryId!=null">category_id,</if>
+        create_time
+        )
+        values (
+        <if test="title!=null">#{title},</if>
+        <if test="summary!=null">#{summary},</if>
+        <if test="image!=null">#{image},</if>
+        <if test="creatorId!=null">#{creatorId},</if>
+        <if test="categoryId!=null">#{categoryId},</if>
+        now()
+        )
+    </insert>
+
+    <insert id="insertContent" parameterType="blog.straysheep.dto.ArticleDto"
+            flushCache="true" statementType="PREPARED" timeout="20">
+        insert into article_content (
+        <if test="id!=null">article_id,</if>
+        <if test="content!=null">article_content</if>
+        )
+        values (
+        <if test="id!=null">#{id},</if>
+        <if test="content!=null">#{content}</if>
+        )
+    </insert>
+
+    <update id="updateArticle" parameterType="blog.straysheep.dto.ArticleDto"
+            flushCache="true" statementType="PREPARED" timeout="20">
+        update article set
+        <if test="title!=null">
+            title = #{title},
+        </if>
+        <if test="summary!=null">
+            summary = #{summary},
+        </if>
+        <if test="image!=null">
+            image = #{image},
+        </if>
+        <if test="categoryId!=null">
+            category_id = #{categoryId}
+        </if>
+        where id = #{id}
+    </update>
+
+    <update id="updateContent" parameterType="blog.straysheep.dto.ArticleDto"
+            flushCache="true" statementType="PREPARED" timeout="20">
+        update article_content set
+        <if test="content!=null">
+            article_content = #{content}
+        </if>
+        where article_id = #{id}
+    </update>
+
+    <delete id="deleteArticle" parameterType="blog.straysheep.dto.ArticleDto">
+        delete from article where id = #{id}
+    </delete>
+
+    <delete id="deleteContent" parameterType="blog.straysheep.dto.ArticleDto">
+        delete from article_content where article_id = #{id}
+    </delete>
+
+
+
+
+    <insert id="insertComment" parameterType="blog.straysheep.dto.CommentDto">
+        insert into article_comment(
+        <if test="replyId!=null">reply_id, </if>
+        <if test="rootCommentId!=null">root_comment_id, </if>
+        <if test="commentType!=null">comment_type, </if>
+        <if test="articleId!=null">article_id, </if>
+        <if test="comment!=null">comment, </if>
+        <if test="nickName!=null">nick_name </if>
+        )
+        values(
+        <if test="replyId!=null">#{replyId}, </if>
+        <if test="rootCommentId!=null">#{rootCommentId}, </if>
+        <if test="commentType!=null">#{commentType}, </if>
+        <if test="articleId!=null">#{articleId}, </if>
+        <if test="comment!=null">#{comment}, </if>
+        <if test="nickName!=null">#{nickName}  </if>
+        )
+    </insert>
+
+    <sql id="baseSqlForComment">
+        select id, article_id, comment_type, root_comment_id, reply_id, comment, nick_name, avatar, create_time
+        from article_comment
+        where comment_type = 0
+        <if test="articleId!=null">
+            and article_id = #{articleId}
+        </if>
+    </sql>
+
+    <select id="selectCommentsByArticleId" resultType="blog.straysheep.dto.CommentDto">
+        <include refid="baseSqlForComment"/> limit #{from}, #{pageSize}
+    </select>
+
+    <select id="selectCommentTotalRecord" resultType="Integer">
+        select count(*) from (<include refid="baseSqlForComment"/>) s
+    </select>
+
+    <select id="selectReplyByCommentId" resultType="blog.straysheep.dto.CommentDto">
+        select id, comment_type, root_comment_id, reply_id, comment, nick_name, avatar, create_time
+        from article_comment where
+        <if test="id!=null">
+            root_comment_id = #{id}
+        </if>
+    </select>
+
+    <select id="selectReplyNickNameByReplyId" resultType="blog.straysheep.dto.CommentDto">
+        select nick_name from article_comment where comment_type = 1
+        <if test="id!=null">
+           and id = #{id}
+        </if>
+    </select>
+
+    <select id="selectCommentsCountByArticleId" resultType="Integer">
+        select count(*) from article_comment where
+        <if test="id!=null">
+           article_id = #{id}
+        </if>
+    </select>
+
+    <select id="selectPreviousArticleByArticleId" resultType="blog.straysheep.dto.ArticleDto">
+        select id, title from article where
+        <if test="id!=null">
+            id &lt; #{id}
+        </if>
+        order by id desc limit 0,1
+    </select>
+
+    <select id="selectNextArticleByArticleId" resultType="blog.straysheep.dto.ArticleDto">
+        select id, title from article where
+        <if test="id!=null">
+            id > #{id}
+        </if>
+        order by id limit 0,1
+    </select>
+
+
+</mapper>
