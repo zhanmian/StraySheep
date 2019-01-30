@@ -1,5 +1,5 @@
 # StraySheep
-个人博客项目 Spring Boot + MyBatis + FreeMarker + Shiro + Elasticsearch
+个人博客项目，后台管理包含文章管理、用户管理、权限管理，前端包含文章列表分页显示、文章阅读、分类、搜索、评论。
 
 ## 技术使用
 
