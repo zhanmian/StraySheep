@@ -75,40 +75,6 @@ public class BlogController {
         model.addAttribute("commentCount", commentCount);
         model.addAttribute("preArticle", preArticle);
         model.addAttribute("nextArticle", nextArticle);
-//        含有ajax的网页使用htmlunit模拟浏览器获取加载后的数据，再用jsoup解析
-//        WebClient webClient = new WebClient(BrowserVersion.CHROME);
-//        webClient.getOptions().setCssEnabled(false);
-//        webClient.getOptions().setJavaScriptEnabled(true);
-//        webClient.getOptions().setRedirectEnabled(true);
-//        webClient.getOptions().setThrowExceptionOnScriptError(false);
-//        webClient.getOptions().setTimeout(50000);
-//
-//        HtmlPage htmlPage = webClient.getPage("http://www.dgtle.com/");
-//        webClient.waitForBackgroundJavaScript(5000);
-//        String html = htmlPage.asXml();
-
-//        Document document = Jsoup.parse(html);
-//        Elements element = document.getElementsByClass("list-group-item cards-content");
-//        Elements url = element.select("h3");
-
-
-        Document document = Jsoup.connect("https://www.ifanr.com/").get();
-        Elements elements = document.getElementById("article-container").select("h3").select("a");
-
-        for(Element e:elements){
-            String url = e.attr("href");
-            Document document1 = Jsoup.connect(url).get();
-            String title = document1.getElementsByTag("h1").get(0).text();
-            Elements content = document1.getElementsByTag("article");
-            String image = document1.getElementById("article-header").select("img").attr("src").toString();
-//
-//            ArticleDto articleDto = new ArticleDto();
-//            articleDto.setTitle(title);
-//            articleDto.setContent(content.toString());
-
-//            System.out.println(title);
-//            System.out.println(content);
-        }
 
         return "/blog/article";
     }
@@ -140,10 +106,7 @@ public class BlogController {
     @RequestMapping(value = "/add_comment")
     @ResponseBody
     public ResultData addComment(@RequestBody CommentDto commentDto){
-
-        ResultData resultData = articleServiceImp.addComment(commentDto);
-
-        return resultData;
+        return articleServiceImp.addComment(commentDto);
     }
 
     @RequestMapping(value = "/search")
@@ -151,13 +114,11 @@ public class BlogController {
                          Model model) throws IOException, ParseException {
 
         param.setPageSize(6);
-
         PaginationResultData<ArticleDto> result = blogServiceImp.search(param);
-        model.addAttribute("pagination", result);
-
         List<ArticleDto> categoryList = blogServiceImp.selectAllCategory();
-        model.addAttribute("categoryList", categoryList);
 
+        model.addAttribute("pagination", result);
+        model.addAttribute("categoryList", categoryList);
         model.addAttribute("keyword", param.getKeyword());
 
         return "/blog/search_result";
