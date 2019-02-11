@@ -39,11 +39,11 @@
 
         <form action="../../index2.html" method="post">
             <div class="form-group has-feedback">
-                <input type="text" id="username" class="form-control" placeholder="用户名">
+                <input type="text" id="username" class="form-control" placeholder="用户名" value="super_admin">
                 <span class="glyphicon glyphicon-envelope form-control-feedback"></span>
             </div>
             <div class="form-group has-feedback">
-                <input type="password" id="password" class="form-control" placeholder="密码">
+                <input type="password" id="password" class="form-control" placeholder="密码" value="123456">
                 <span class="glyphicon glyphicon-lock form-control-feedback"></span>
             </div>
             <div class="row">
