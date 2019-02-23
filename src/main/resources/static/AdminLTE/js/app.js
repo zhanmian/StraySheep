@@ -45,7 +45,12 @@
         $("#submit-excel").click(
             function(){
                 var formData = new FormData();
-                formData.append('file', $('#inputFile')[0].files[0]);
+                var file = $('#inputFile')[0].files[0];
+                formData.append('file', file);
+                if(!file){
+                    alert('请先选择文件');
+                    return;
+                }
                 $.ajax({
                     url:baseUrl+'/admin/import_excel',
                     data: formData,
@@ -65,13 +70,17 @@
     function handleMenu() {
         var params = (new URL(document.location)).searchParams;
         var dataUrl = params.get("data-url");
-        loadModule(dataUrl);
+        if(dataUrl){
+            loadModule(dataUrl);
+        }
 
         $('#sidebar-menu').find('a').click(
             function () {
                 var a = $(this);
                 var url = a.data('url');
-                loadModule(url);
+                if(url){
+                    loadModule(url);
+                }
             });
 
         //刷新后遍历<a>标签的url并和地址栏的data-url进行比对
