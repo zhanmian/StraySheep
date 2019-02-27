@@ -113,7 +113,9 @@ public class ArticleController {
     public ResultData upload(@RequestPart("file") MultipartFile image) throws IOException {
 
         String fileName = image.getOriginalFilename();
-        image.transferTo(new File(storageLocationRoot + storageLocationImage + "/" + fileName));
+        String path = storageLocationRoot + storageLocationImage + "/" + fileName;
+        System.out.println("The path is : " + path);
+        image.transferTo(new File(path));
 
         String filePath = storageLocationImage + "/" + fileName;
 //        String newFilePath = storageLocationImage + "/small_" + fileName;

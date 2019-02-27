@@ -40,8 +40,8 @@
                     </#list>
                 </ul>
             </li>
-            <li><a href="page-about.html" title="">关于</a></li>
-            <li><a href="page-contact.html" title="">联系方式</a></li>
+            <li><a href="${baseUrl}/about" title="">关于</a></li>
+            <li><a href="${baseUrl}/contact" title="">联系方式</a></li>
         </ul> <!-- end header__nav -->
 
         <a href="#0" title="Close Menu" class="header__overlay-close close-mobile-menu">Close</a>

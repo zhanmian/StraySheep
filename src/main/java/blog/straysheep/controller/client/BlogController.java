@@ -39,18 +39,17 @@ public class BlogController {
     @ModelAttribute
     public void populateModel(Model model) {
         model.addAttribute("baseUrl", baseUrl);
+        model.addAttribute("categoryList", blogServiceImp.selectAllCategory());
     }
 
     @RequestMapping(value = "/index")
     public String toIndex(HttpServletRequest request, ArticleRequestParam param,
                           Model model){
-        List<ArticleDto> categoryList = blogServiceImp.selectAllCategory();
         List<ArticleDto> articleListForBanner = blogServiceImp.selectArticleForBanner();
 
         param.setPageSize(12);
         PaginationResultData<ArticleDto> pagination = articleServiceImp.selectByPage(param);
 
-        model.addAttribute("categoryList", categoryList);
         model.addAttribute("banner", articleListForBanner);
         model.addAttribute("pagination", pagination);
         //如果是首页就返回有banner的页面
@@ -64,13 +63,11 @@ public class BlogController {
     @RequestMapping(value = "/article")
     public String readArticle(HttpServletRequest request, Integer id,
                               Model model) throws IOException{
-        List<ArticleDto> categoryList = blogServiceImp.selectAllCategory();
         ArticleDto article = blogServiceImp.selectArticleById(id);
         Integer commentCount = blogServiceImp.selectCommentCount(id);
         ArticleDto preArticle = blogServiceImp.selectPreviousArticle(id);
         ArticleDto nextArticle = blogServiceImp.selectNextArticle(id);
 
-        model.addAttribute("categoryList", categoryList);
         model.addAttribute("article",article);
         model.addAttribute("commentCount", commentCount);
         model.addAttribute("preArticle", preArticle);
@@ -96,8 +93,6 @@ public class BlogController {
                                  Model model){
         param.setPageSize(12);
         PaginationResultData<ArticleDto> pagination = blogServiceImp.selectArticleByCategory(param);
-        List<ArticleDto> categoryList = blogServiceImp.selectAllCategory();
-        model.addAttribute("categoryList", categoryList);
         model.addAttribute("pagination", pagination);
 
         return "/blog/category";
@@ -115,12 +110,20 @@ public class BlogController {
 
         param.setPageSize(6);
         PaginationResultData<ArticleDto> result = blogServiceImp.search(param);
-        List<ArticleDto> categoryList = blogServiceImp.selectAllCategory();
 
         model.addAttribute("pagination", result);
-        model.addAttribute("categoryList", categoryList);
         model.addAttribute("keyword", param.getKeyword());
 
         return "/blog/search_result";
+    }
+
+    @RequestMapping(value = "/contact")
+    public String toContact(){
+        return "/blog/contact";
+    }
+
+    @RequestMapping(value = "/about")
+    public String toAbout(){
+        return "/blog/about";
     }
 }
