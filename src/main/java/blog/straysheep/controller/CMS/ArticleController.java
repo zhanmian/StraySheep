@@ -126,7 +126,7 @@ public class ArticleController {
                 .toFile(filePath);
 
         Map<String, Object> map = new HashMap<>();
-        map.put("filePath", filePath);
+        map.put("filePath", filePath.replace(storageLocationRoot, ""));
 
         Object o = new Object();
         o.equals(map);
