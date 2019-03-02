@@ -6,8 +6,8 @@
         </Console>
 
         <RollingFile name="RollingFile"
-                     fileName="logs/straysheep.log"
-                     filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
+                     fileName="logs/straysheep/app.log"
+                     filePattern="logs/straysheep/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
 
             <PatternLayout>
                 <Pattern>%d %p [thread id:%T] %C (%F:%L) - %M %n%m%n%n</Pattern>
