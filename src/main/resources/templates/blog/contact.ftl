@@ -63,13 +63,13 @@
 
     <div class="row">
         <div class="col-full s-content__main">
-            <p>
-                <img src="images/thumbs/contact/contact-1000.jpg"
-                     srcset="images/thumbs/contact/contact-2000.jpg 2000w,
-                             images/thumbs/contact/contact-1000.jpg 1000w,
-                             images/thumbs/contact/contact-500.jpg 500w"
-                     sizes="(max-width: 2000px) 100vw, 2000px" alt="">
-            </p>
+            <#--<p>-->
+                <#--<img src="images/thumbs/contact/contact-1000.jpg"-->
+                     <#--srcset="images/thumbs/contact/contact-2000.jpg 2000w,-->
+                             <#--images/thumbs/contact/contact-1000.jpg 1000w,-->
+                             <#--images/thumbs/contact/contact-500.jpg 500w"-->
+                     <#--sizes="(max-width: 2000px) 100vw, 2000px" alt="">-->
+            <#--</p>-->
 
             <h2>Say Hello</h2>
 
@@ -85,11 +85,11 @@
                 ipsum Nisi amet fugiat eiusmod et aliqua ad qui ut nisi Ut aute anim mollit fugiat aute.
             </p>
 
-            <div id="map-wrap">
-                <div id="map-container"></div>
-                <div id="map-zoom-in"></div>
-                <div id="map-zoom-out"></div>
-            </div>
+            <#--<div id="map-wrap">-->
+                <#--<div id="map-container"></div>-->
+                <#--<div id="map-zoom-in"></div>-->
+                <#--<div id="map-zoom-out"></div>-->
+            <#--</div>-->
 
             <div class="row">
                 <div class="col-six tab-full">
