@@ -6,7 +6,7 @@
         </Console>
 
         <RollingFile name="RollingFile"
-                     fileName="logs/app.log"
+                     fileName="logs/straysheep.log"
                      filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
 
             <PatternLayout>
