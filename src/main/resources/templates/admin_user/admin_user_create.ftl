@@ -1,5 +1,5 @@
 
-<link rel="stylesheet" href="/css/cropper/cropper.css" type="text/css">
+<link rel="stylesheet" href="/cropper/cropper.css" type="text/css">
 <style>
     img {
         max-width: 100%; /* This rule is very important, please do not ignore this! */

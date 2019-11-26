@@ -106,8 +106,10 @@
                     <div class="item-entry" data-aos="zoom-in">
                         <div class="item-entry__thumb">
                             <a href="${baseUrl}/article?id=${item.id!}" class="item-entry__thumb-link">
-                                <img src="${baseUrl}/article/downloadImage?filePath=${item.image!}"
-                                     alt="">
+                                <#--<img src="${baseUrl}/article/downloadImage?filePath=${item.image!}"-->
+                                     <#--alt="">-->
+                                <img src='' data-src='${baseUrl}/article/downloadImage?filePath=${item.image!}'
+                                     class='lazyLoad'>
                             </a>
                         </div>
 
